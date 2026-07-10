@@ -1,0 +1,112 @@
+name: SoundView
+options:
+  bundleIdPrefix: com.soundview
+  deploymentTarget:
+    iOS: "17.0"
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    DEVELOPMENT_TEAM: "S8662L649U"
+targets:
+  SoundView:
+    type: application
+    platform: iOS
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - path: SoundView
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.soundview.app
+        PRODUCT_NAME: SoundView
+        MARKETING_VERSION: "2.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_KEY_CFBundleDisplayName: SoundView
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: SoundView needs the microphone to record audio for stem separation.
+        INFOPLIST_KEY_UIFileSharingEnabled: YES
+        INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
+        INFOPLIST_KEY_UISupportsDocumentBrowser: YES
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_ENTITLEMENTS: SoundView/SoundView.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        COMBINE_HIDPI_IMAGES: YES
+    entitlements:
+      path: SoundView/SoundView.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.soundview.app
+        com.apple.developer.icloud-services:
+          - CloudDocuments
+        com.apple.developer.ubiquity-container-identifiers:
+          - iCloud.com.soundview.app
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.device.audio-input: true
+    scheme:
+      testTargets:
+        - SoundViewTests
+        - SoundViewUITests
+      gatherCoverageData: true
+
+  SoundViewTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SoundViewTests
+      # Shared fixtures (repo root) — not compiled as source
+      - path: Fixtures/Audio
+        buildPhase: resources
+        type: folder
+        name: AudioFixtures
+    dependencies:
+      - target: SoundView
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.soundview.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/SoundView.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SoundView"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+  SoundViewUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: SoundViewUITests
+      # Same audio fixtures available to UI tests when needed
+      - path: Fixtures/Audio
+        buildPhase: resources
+        type: folder
+        name: AudioFixtures
+    dependencies:
+      - target: SoundView
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.soundview.app.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: SoundView
+
+schemes:
+  SoundView:
+    build:
+      targets:
+        SoundView: all
+        SoundViewTests: [test]
+        SoundViewUITests: [test]
+    test:
+      targets:
+        - SoundViewTests
+        - SoundViewUITests
+      gatherCoverageData: true
+    run:
+      config: Debug

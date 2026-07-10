@@ -1,0 +1,49 @@
+# Xcode
+DerivedData/
+*.xcuserstate
+*.xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+timeline.xctimeline
+playground.xcworkspace
+
+# XcodeGen / SPM
+.swiftpm/
+.build/
+Packages/
+Package.resolved
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Tools
+.idea/
+.vscode/
+*.swp
+*~
+.derivedData/
+
+# Secrets / local overrides
+*.p12
+*.mobileprovision
+.env
+.env.*
+Secrets.xcconfig
+*.xcconfig.local
+
+# Test / coverage
+coverage/
+*.gcda
+*.gcno
+*.profdata
+*.profraw
+
+# Grok / agent local
+.grok/
