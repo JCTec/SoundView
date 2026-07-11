@@ -1,0 +1,70 @@
+{
+  "model": "spleeter_4stems",
+  "license": "MIT (Deezer) \u2014 bundled as the Standard engine",
+  "provenance": {
+    "config": "tools/spleeter_configs/4stems.json (deezer/spleeter, MIT)",
+    "weights": "deezer/spleeter release v1.4.0 4stems.tar.gz",
+    "architecture": "model/functions/unet.py unet.unet (per-instrument U-Net)"
+  },
+  "sources": [
+    "vocals",
+    "drums",
+    "bass",
+    "other"
+  ],
+  "sample_rate": 44100,
+  "n_fft": 4096,
+  "hop": 1024,
+  "frames": 512,
+  "freq_bins_model": 1024,
+  "freq_bins_full": 2049,
+  "n_channels": 2,
+  "spec_exponent": 1,
+  "stft": {
+    "window": "hann_periodic",
+    "center": false,
+    "pad_end": true,
+    "prepad_samples": 4096,
+    "window_compensation_factor": 0.6666666666666666,
+    "crop_leading_samples": 4096
+  },
+  "inputs": [
+    "mag"
+  ],
+  "input_shape": [
+    1,
+    512,
+    1024,
+    2
+  ],
+  "outputs": [
+    "Identity_3",
+    "Identity_1",
+    "Identity",
+    "Identity_2"
+  ],
+  "output_order": [
+    "vocals",
+    "drums",
+    "bass",
+    "other"
+  ],
+  "output_shape": [
+    1,
+    512,
+    1024,
+    2
+  ],
+  "masking": {
+    "type": "ratio_softmask",
+    "separation_exponent": 2,
+    "epsilon": 1e-10,
+    "n_sources": 4,
+    "note": "model output_i = sigmoid_mask_i \u00b7 |mix_mag| (already multiplied)",
+    "mask_i": "(output_i**p + epsilon/N) / (sum_j output_j**p + epsilon)",
+    "mask_extension": "zeros",
+    "extend_from_bins": 1024,
+    "extend_to_bins": 2049,
+    "apply": "masked_stft_i = complex(extend(mask_i)) * mix_stft; extended bins are 0"
+  }
+}

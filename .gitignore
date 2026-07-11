@@ -47,3 +47,22 @@ coverage/
 
 # Grok / agent local
 .grok/
+
+# Offline Demucs workspace (regenerate with scripts/separate_idilio.sh)
+.venv-demucs/
+.derived-demucs/
+
+# Large generated stem WAVs stay local unless you opt into LFS
+# (app build still uses Fixtures/Audio/Idilio-stems when present)
+Fixtures/Audio/Idilio-stems/*.wav
+
+# Build tooling virtualenv (tools/README.md)
+tools/.venv/
+# Downloaded pretrained checkpoints — build inputs, never shipped, never committed
+tools/checkpoints/
+# Conversion / parity / install logs (tee'd during model export)
+coreml_export.log
+spleeter_export.log
+spleeter_validate.log
+spleeter_install.log
+tf_install.log
