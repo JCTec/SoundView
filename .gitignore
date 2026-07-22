@@ -67,3 +67,6 @@ tools/checkpoints/
 # Fetch them with `make models` (tools/fetch_models.sh) or regenerate via
 # tools/convert_htdemucs.py. The manifest JSON stays tracked — it's the contract.
 SoundView/Resources/*.mlpackage/
+
+# DEBUG-only htdemucs_6s reference stems (~312 MB, fetched/local, never in git)
+Fixtures/Audio/Idilio-stems/

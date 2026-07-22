@@ -25,11 +25,11 @@ targets:
       - path: Fixtures/Audio/Idilio.mp3
         buildPhase: resources
         type: file
-      # Real Demucs htdemucs_6s stems for Idilio (vocals/drums/bass/guitar/piano/other).
-      - path: Fixtures/Audio/Idilio-stems
-        buildPhase: resources
-        type: folder
-        name: Idilio-stems
+      # NOTE: the ~312 MB htdemucs_6s Idilio reference pack (a DEBUG-only dev
+      # fallback) is intentionally NOT bundled or committed — it can't live in git,
+      # and real Core ML models now ship. `ReferenceStemBank.isIdilioPackAvailable`
+      # no-ops when absent. To use it locally, fetch the pack and add the folder
+      # back here. Keeping it out lets CI/fresh clones build.
       # Separation engine: Meta's official Demucs (htdemucs_ft). The four
       # fine-tuned Core ML models (htdemucs_ft_{drums,bass,other,vocals}.mlpackage)
       # + htdemucs_manifest.json ship in SoundView/Resources/, produced by
