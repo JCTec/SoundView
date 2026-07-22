@@ -22,6 +22,11 @@ else — CI, CodeQL, label sync, the release pipeline — is automated in
 - [ ] Confirm **`main` is the default branch**.
 - [ ] (Optional) Branch protection on `main`: require the **CI** and **CodeQL**
       checks to pass before merge.
+- [ ] **Enable code scanning** so CodeQL results appear in the Security tab —
+      Settings → Code security → Code scanning. Free once the repo is **public**;
+      on a **private** repo it needs **GitHub Advanced Security**. Until then the
+      CodeQL workflow still runs the analysis each push but the upload soft-fails
+      (the check stays green); it starts publishing automatically once enabled.
 
 ## Release signing (for a distributable macOS DMG)
 
