@@ -1,0 +1,58 @@
+name: Release models
+
+# Manually regenerate the four Demucs Core ML models from Meta's official
+# checkpoint and publish them as a GitHub Release asset. This is how the ~412 MB
+# of weights are distributed (they are NOT committed to git). Consumers fetch
+# them with `make models` / `tools/fetch_models.sh`.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag for the models (e.g. models-v1)"
+        required: true
+        default: "models-v1"
+
+permissions:
+  contents: write
+
+jobs:
+  convert-and-release:
+    name: Convert Demucs → Core ML → Release
+    runs-on: macos-14
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Convert htdemucs_ft → Core ML
+        working-directory: tools
+        run: |
+          python -m venv .venv && source .venv/bin/activate
+          pip install --upgrade pip
+          pip install "torch" "coremltools>=8.0" "demucs" "soundfile" "numpy"
+          python convert_htdemucs.py 2>&1 | tee ../htdemucs_export.log
+          python convert_htdemucs.py --validate ../Fixtures/Audio/Idilio.mp3
+
+      - name: Package models
+        run: |
+          cd SoundView/Resources
+          zip -r -q ../../htdemucs_ft_coreml.zip ./*.mlpackage
+          shasum -a 256 ../../htdemucs_ft_coreml.zip | tee ../../htdemucs_ft_coreml.zip.sha256
+          ls -lh ../../htdemucs_ft_coreml.zip
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ inputs.tag }}" \
+            htdemucs_ft_coreml.zip htdemucs_ft_coreml.zip.sha256 \
+            --title "Demucs Core ML models (${{ inputs.tag }})" \
+            --notes "Four fine-tuned htdemucs_ft models converted to Core ML by \`tools/convert_htdemucs.py\`. Meta Demucs weights, CC-BY-NC 4.0. Fetch with \`make models\`." \
+            || gh release upload "${{ inputs.tag }}" \
+              htdemucs_ft_coreml.zip htdemucs_ft_coreml.zip.sha256 --clobber

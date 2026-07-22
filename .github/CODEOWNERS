@@ -1,0 +1,8 @@
+# Default owner for everything in the repo.
+* @JCTec
+
+# Areas worth extra eyes.
+/tools/                       @JCTec
+/.github/                     @JCTec
+/SoundView/Services/Separation/ @JCTec
+/SoundView/Math/              @JCTec
