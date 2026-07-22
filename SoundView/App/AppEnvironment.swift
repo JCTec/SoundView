@@ -19,6 +19,7 @@ final class AppEnvironment {
         Log.configure(sink: CompositeLogSink([OSLogSink(), FileLogSink()]))
         Log.recoverFromUncleanExit()
         Log.info(.lifecycle, "launch", Log.memory())
+        DeviceKind.warmUp()  // capture the device idiom on the main actor (see DeviceKind)
 
         let store: any FileStoreProtocol
         if let fileStore {
