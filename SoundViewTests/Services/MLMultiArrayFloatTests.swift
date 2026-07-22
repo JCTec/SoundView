@@ -38,4 +38,32 @@ final class MLMultiArrayFloatTests: XCTestCase {
         let out = try array.floatValues()
         XCTAssertEqual(out.count, 512 * 1024 * 2)
     }
+
+    /// The garbled-audio bug: on-device `MLModel` outputs are **row-padded** (last
+    /// axis stride > its length), so a contiguous read drifts into padding after
+    /// the first row. `floatValues()` must gather by `strides` and return tight
+    /// logical order. Build a padded array by hand (last axis 3, stride 4) and prove
+    /// the padding never leaks into the result.
+    func testNonContiguousStridesReturnTightLogicalOrder() throws {
+        let shape = [2, 3]                 // logical 6 values
+        let rowStride = 4                  // padded: 1 junk float after each row of 3
+        let backing = 2 * rowStride        // 8 floats
+        let buffer = UnsafeMutablePointer<Float>.allocate(capacity: backing)
+        defer { buffer.deallocate() }
+        buffer.initialize(repeating: -999, count: backing)          // padding = sentinel
+        let logical: [Float] = [1, 2, 3, 4, 5, 6]
+        for row in 0..<2 {
+            for col in 0..<3 { buffer[row * rowStride + col] = logical[row * 3 + col] }
+        }
+
+        let array = try MLMultiArray(
+            dataPointer: buffer,
+            shape: shape.map { NSNumber(value: $0) },
+            dataType: .float32,
+            strides: [rowStride, 1].map { NSNumber(value: $0) }
+        )
+        let out = try array.floatValues()
+        XCTAssertEqual(out, logical, "must skip row padding, not read the sentinel")
+        XCTAssertFalse(out.contains(-999), "padding leaked into the flattened output")
+    }
 }

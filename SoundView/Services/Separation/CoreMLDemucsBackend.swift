@@ -142,10 +142,6 @@ private final class Engine {
                         let flush = chunk == chunkCount - 1 ? totalFrames - offset : hop
                         try writer.append(streamer.push(stem, flush: flush))
                     }
-                    // DIAG: per-chunk memory trajectory (flat = load spike; rising = leak).
-                    Log.info(.separation, "chunk", Log.withMemory([
-                        "stem": key, "chunk": "\(chunk + 1)/\(chunkCount)"
-                    ]))
                     unitsDone += 1
                     chunkSeconds.append(Date().timeIntervalSince(started))
                     let average = chunkSeconds.reduce(0, +) / Double(chunkSeconds.count)

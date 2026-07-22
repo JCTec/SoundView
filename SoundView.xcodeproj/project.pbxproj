@@ -61,6 +61,7 @@
 		61C622989640D35542D6A01B /* MixMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B9F3597DB6A3E025B49BD /* MixMatrix.swift */; };
 		62A3A277021216E0A1661343 /* PeakTierMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EB4B1307A699D1C3402490 /* PeakTierMathTests.swift */; };
 		636CF0BEF3387D0CD4891AD2 /* StemExportSheet+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 960CA0F456390C20014A7B16 /* StemExportSheet+ViewModel.swift */; };
+		642CDDE048413483B226268F /* DemucsProbeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0330933AF6A82CB39F4FB58F /* DemucsProbeTests.swift */; };
 		677779D849FDC4E49373DE8D /* StemExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119CAC8D9951DEE34CDB642E /* StemExportSheet.swift */; };
 		683EDF197C7FB3D95FE9EE5F /* SeparationView+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758DBC4EF3A51DF63C6C3198 /* SeparationView+ViewModel.swift */; };
 		68A03149E22FBD68DB3DD67B /* RelativeDayLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77C5F6C847CE3C12013DE997 /* RelativeDayLabel.swift */; };
@@ -161,6 +162,7 @@
 
 /* Begin PBXFileReference section */
 		025BBF56AF25EEB140BB6423 /* AudioFileIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileIO.swift; sourceTree = "<group>"; };
+		0330933AF6A82CB39F4FB58F /* DemucsProbeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemucsProbeTests.swift; sourceTree = "<group>"; };
 		04093AD796D65DB4A2E34DED /* SVEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVEmptyState.swift; sourceTree = "<group>"; };
 		050FFAFBCCFB00DD583589E5 /* WaveTimelineGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveTimelineGestures.swift; sourceTree = "<group>"; };
 		05B9E3FE1520995AE893E944 /* LibraryViewRobot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewRobot.swift; sourceTree = "<group>"; };
@@ -696,6 +698,7 @@
 		F56F16C9DFB81402A930A815 /* Math */ = {
 			isa = PBXGroup;
 			children = (
+				0330933AF6A82CB39F4FB58F /* DemucsProbeTests.swift */,
 				86A0ABF0D758E7EF685AB9D8 /* DemucsSpecTests.swift */,
 				C2E3B9FD48C941EF3814184B /* LaneColorMathTests.swift */,
 				1292AD81705EB4D7F3F90D0C /* MixMatrixTests.swift */,
@@ -979,6 +982,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				642CDDE048413483B226268F /* DemucsProbeTests.swift in Sources */,
 				437E2BA72DD98904815E3F89 /* DemucsSpecTests.swift in Sources */,
 				206B30D71082B63738530E05 /* FileStoreTests.swift in Sources */,
 				2646AEC09C6BAF59AA32BE54 /* LaneColorMathTests.swift in Sources */,
