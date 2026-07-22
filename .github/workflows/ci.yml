@@ -24,10 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode 16
+      - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "16.0"
+          # Pick the newest Xcode 16.x on the runner (macos-14 ships 16.2, not 16.0).
+          xcode-version: "^16.0"
 
       - name: Install XcodeGen + SwiftLint + xcbeautify
         run: brew install xcodegen swiftlint xcbeautify
