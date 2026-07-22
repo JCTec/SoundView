@@ -23,6 +23,12 @@ enum A11yID {
         static let screen = "separation.screen"
         static let cancel = "separation.cancel"
         static let progress = "separation.progress"
+        static let installModel = "separation.installModel"
+    }
+
+    enum QualityPicker {
+        static let picker = "quality.picker"
+        static func option(_ quality: SoundView.SeparationQuality) -> String { "quality.\(quality.rawValue)" }
     }
 
     enum Stem {
@@ -30,12 +36,22 @@ enum A11yID {
         static let desk = "stem.desk"
         static let export = "stem.export"
         static func lane(_ id: String) -> String { "stem.lane.\(id)" }
+        static func laneExport(_ id: String) -> String { "stem.laneExport.\(id)" }
+        static let exportSheet = "stem.exportSheet"
+        static let exportRun = "stem.exportRun"
+        static let exportShare = "stem.exportShare"
+        static func exportOption(_ id: String) -> String { "stem.exportOption.\(id)" }
     }
 
     enum Recorder {
         static let screen = "recorder.screen"
         static let recordToggle = "recorder.toggle"
         static let stop = "recorder.stop"
+    }
+
+    enum About {
+        static let screen = "about.screen"
+        static let open = "about.open"
     }
 
     enum Transport {

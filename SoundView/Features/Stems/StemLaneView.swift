@@ -1,46 +1,143 @@
 import SwiftUI
 
-/// One stem lane — inline (phone) or desk (header column + wave).
+/// One stem lane — inline (phone card) or desk (header column + wave).
+/// Stateless: lane values + viewport in, intents out. Design §03 states:
+/// muted dims to 35%; when any lane is soloed, non-soloed lanes gray out.
 struct StemLaneView: View {
     let lane: StemLaneState
-    var layout: SVLaneLayout = .inline
+    let layout: SVLaneLayout
+    let visible: ViewportMath.Range
+    let playhead: TimeInterval
+    /// True when any lane in the desk is soloed (grays out the others).
+    let anySolo: Bool
+    /// When set, the wave surface gains the shared timeline gestures
+    /// (drag pans all lanes, pinch zooms, tap seeks). Controls stay untouched.
+    var gestureModel: StemPlayerModel?
     let onMute: () -> Void
     let onSolo: () -> Void
     let onVolume: (Float) -> Void
+    /// Long-press "Export this stem". Optional so previews/desk can omit it.
+    var onExport: (() -> Void)?
 
-    @State private var muted: Bool
-    @State private var soloed: Bool
-    @State private var volume: Float
+    private var color: Color { LaneColorMath.color(forStemIndex: lane.index) }
 
-    init(
-        lane: StemLaneState,
-        layout: SVLaneLayout,
-        onMute: @escaping () -> Void,
-        onSolo: @escaping () -> Void,
-        onVolume: @escaping (Float) -> Void
-    ) {
-        self.lane = lane
-        self.layout = layout
-        self.onMute = onMute
-        self.onSolo = onSolo
-        self.onVolume = onVolume
-        _muted = State(initialValue: lane.isMuted)
-        _soloed = State(initialValue: lane.isSoloed)
-        _volume = State(initialValue: lane.volume)
+    private var isBackgrounded: Bool { anySolo && !lane.isSoloed }
+
+    private var laneAlpha: Double {
+        if lane.isMuted && !lane.isSoloed { return SVWaveMetrics.mutedAlpha }
+        if isBackgrounded { return SVWaveMetrics.backgroundedAlpha }
+        return 1
     }
 
     var body: some View {
         Group {
             switch layout {
-            case .inline:
-                inlineBody
-            case .desk:
-                deskBody
+            case .inline: inlineBody
+            case .desk: deskBody
             }
         }
-        .opacity(lane.isMuted && !lane.isSoloed ? 0.35 : 1)
+        .opacity(laneAlpha)
+        .animation(SVAnimation.stateFlip, value: laneAlpha)
+        .contextMenu { laneMenu }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(accessibilitySummary)
+    }
+
+    @ViewBuilder
+    private var laneMenu: some View {
+        if let onExport {
+            Button {
+                onExport()
+            } label: {
+                Label("Export this stem", systemImage: "square.and.arrow.up")
+            }
+            .accessibilityIdentifier(A11yID.Stem.laneExport(lane.id))
+        }
+    }
+
+    // MARK: - Layouts
+
+    private var inlineBody: some View {
+        VStack(alignment: .leading, spacing: SVSpacing.xs) {
+            HStack {
+                Text(lane.name)
+                    .font(SVTypography.headline)
+                    .foregroundStyle(color)
+                if lane.isLowEnergy {
+                    Text("Low energy")
+                        .font(SVTypography.caption)
+                        .foregroundStyle(Color.sv.textSecondary)
+                }
+                Spacer()
+                SVMuteSoloButtons(
+                    isMuted: lane.isMuted,
+                    isSoloed: lane.isSoloed,
+                    onMute: onMute,
+                    onSolo: onSolo
+                )
+            }
+            wave
+                .frame(height: SVSpacing.laneHeight)
+            SVVolumeSlider(
+                volume: Binding(get: { lane.volume }, set: { onVolume($0) }),
+                tint: color
+            )
+        }
+        .padding(SVSpacing.md)
+        .background(soloTintedSurface, in: RoundedRectangle(cornerRadius: SVRadius.card, style: .continuous))
+    }
+
+    private var deskBody: some View {
+        HStack(spacing: 0) {
+            LaneHeaderColumn(
+                lane: lane,
+                color: color,
+                onMute: onMute,
+                onSolo: onSolo,
+                onVolume: onVolume
+            )
+            .frame(width: SVSpacing.deskHeaderColumn)
+
+            wave
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(soloTintedSurface)
+        }
+    }
+
+    // MARK: - Pieces
+
+    @ViewBuilder
+    private var wave: some View {
+        ZStack {
+            if lane.waveform.isEmpty {
+                SVLoadingWave(color: color)
+                    .transition(.opacity)
+            } else {
+                loadedCanvas
+                    .transition(.opacity)
+            }
+        }
+        .animation(SVAnimation.chrome, value: lane.waveform.isEmpty)
+    }
+
+    @ViewBuilder
+    private var loadedCanvas: some View {
+        let canvas = SVWaveformCanvas(
+            waveform: lane.waveform,
+            visible: visible,
+            playhead: playhead,
+            color: color
+        )
+        if let gestureModel {
+            canvas.waveTimelineGestures(gestureModel)
+        } else {
+            canvas
+        }
+    }
+
+    /// Soloed lane's background tints toward its color (design §03 "lane bg tints").
+    private var soloTintedSurface: Color {
+        lane.isSoloed ? color.opacity(0.1) : Color.sv.surface.opacity(layout == .desk ? 0.6 : 1)
     }
 
     private var accessibilitySummary: String {
@@ -50,110 +147,34 @@ struct StemLaneView: View {
         if lane.isLowEnergy { parts.append("low energy") }
         return parts.joined(separator: ", ")
     }
+}
 
-    private var inlineBody: some View {
-        VStack(alignment: .leading, spacing: SVSpacing.xs) {
-            HStack {
-                Text(lane.name)
-                    .svHeadline()
-                    .foregroundStyle(LaneColorMath.color(forStemIndex: lane.index))
-                if lane.isLowEnergy {
-                    Text("Low energy")
-                        .font(SVTypography.caption)
-                        .foregroundStyle(Color.sv.textSecondary)
-                }
-                Spacer()
-                muteSolo
-            }
-            wavePlaceholder
-            Slider(
-                value: Binding(
-                    get: { Double(volume) },
-                    set: {
-                        volume = Float($0)
-                        onVolume(volume)
-                    }
-                ),
-                in: 0...1
-            )
-            .tint(LaneColorMath.color(forStemIndex: lane.index))
-        }
-        .padding(SVSpacing.md)
-        .background(Color.sv.surface, in: RoundedRectangle(cornerRadius: SVRadius.card, style: .continuous))
-    }
-
-    private var deskBody: some View {
-        HStack(spacing: 0) {
-            LaneHeaderColumn(
-                name: lane.name,
-                color: LaneColorMath.color(forStemIndex: lane.index),
-                volume: $volume,
-                isMuted: $muted,
-                isSoloed: $soloed,
-                isLowEnergy: lane.isLowEnergy,
-                onMute: {
-                    muted.toggle()
-                    onMute()
-                },
-                onSolo: {
-                    soloed.toggle()
-                    onSolo()
-                },
-                onVolume: onVolume
-            )
-            .frame(width: SVSpacing.deskHeaderColumn)
-
-            wavePlaceholder
-                .frame(maxWidth: .infinity)
-        }
-        .frame(height: SVSpacing.deskLaneHeight)
-        .background(Color.sv.surface.opacity(0.6))
-    }
-
-    private var muteSolo: some View {
-        SVMuteSoloButtons(
-            isMuted: Binding(
-                get: { muted },
-                set: {
-                    muted = $0
-                    onMute()
-                }
+#Preview {
+    VStack(spacing: SVSpacing.md) {
+        StemLaneView(
+            lane: StemLaneState(
+                id: "vocals", name: "Vocals", index: 0, volume: 0.8,
+                isMuted: false, isSoloed: false, isLowEnergy: false, waveform: .empty
             ),
-            isSoloed: Binding(
-                get: { soloed },
-                set: {
-                    soloed = $0
-                    onSolo()
-                }
-            )
+            layout: .inline,
+            visible: .init(start: 0, end: 12),
+            playhead: 4,
+            anySolo: false,
+            onMute: {}, onSolo: {}, onVolume: { _ in }
         )
+        StemLaneView(
+            lane: StemLaneState(
+                id: "drums", name: "Drums", index: 1, volume: 1,
+                isMuted: true, isSoloed: false, isLowEnergy: false, waveform: .empty
+            ),
+            layout: .desk,
+            visible: .init(start: 0, end: 12),
+            playhead: 4,
+            anySolo: false,
+            onMute: {}, onSolo: {}, onVolume: { _ in }
+        )
+        .frame(height: 100)
     }
-
-    private var wavePlaceholder: some View {
-        // Real WaveformView binds SharedViewport + PeakDecimation tiles next.
-        Canvas { context, size in
-            let mid = size.height / 2
-            var path = Path()
-            path.move(to: CGPoint(x: 0, y: mid))
-            let steps = 48
-            for step in 0...steps {
-                let x = size.width * CGFloat(step) / CGFloat(steps)
-                let y = mid + sin(CGFloat(step) * 0.45 + CGFloat(lane.index)) * (size.height * 0.35)
-                path.addLine(to: CGPoint(x: x, y: y))
-            }
-            context.stroke(
-                path,
-                with: .color(LaneColorMath.color(forStemIndex: lane.index).opacity(0.9)),
-                lineWidth: 1.5
-            )
-            // Fixed center playhead in wave area
-            let playX = ViewportMath.playheadX(width: size.width)
-            var needle = Path()
-            needle.move(to: CGPoint(x: playX, y: 0))
-            needle.addLine(to: CGPoint(x: playX, y: size.height))
-            context.stroke(needle, with: .color(Color.sv.textPrimary.opacity(0.85)), lineWidth: 1)
-        }
-        .frame(height: layout == .desk ? SVSpacing.deskLaneHeight : 56)
-        .background(Color.sv.canvas.opacity(0.5))
-    }
+    .padding()
+    .background(Color.sv.canvas)
 }

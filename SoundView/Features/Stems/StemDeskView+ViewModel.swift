@@ -2,24 +2,33 @@ import Foundation
 import Observation
 
 extension StemDeskView {
+    /// Thin coordinator: resolves the song package and owns the shared player.
+    /// All playback / mix / viewport state lives in `StemPlayerModel` — one source
+    /// of truth for the desk, the phone stack, and the sidebar jump list.
     @Observable
     @MainActor
     final class ViewModel {
         private(set) var song: SongPackage?
-        private(set) var lanes: [StemLaneState] = []
-        private(set) var playhead: TimeInterval = 0
-        private(set) var isPlaying = false
+        let player = StemPlayerModel()
+
         private var songID: String?
+        private var fileStore: (any FileStoreProtocol)?
+        private var mixer: (any StemMixing)?
 
         init(songID: String?) {
             self.songID = songID
         }
 
+        func bind(mixer: any StemMixing, fileStore: any FileStoreProtocol) {
+            self.mixer = mixer
+            self.fileStore = fileStore
+        }
+
         func load(songID: String?, store: any FileStoreProtocol) async {
             self.songID = songID
+            fileStore = store
             guard let songID else {
                 song = nil
-                lanes = []
                 return
             }
             if let loaded = try? await store.song(id: songID) {
@@ -28,55 +37,18 @@ extension StemDeskView {
                 let songs = (try? await store.listSongs()) ?? []
                 song = songs.first { $0.id == songID }
             }
-            rebuildLanes()
+            if let song, song.isSeparated, let mixer {
+                await player.load(song: song, mixer: mixer, fileStore: store)
+            }
         }
 
         func focusStem(id: String?) {
-            // Jump-only: highlight handled by view; no reorder.
+            // Reserved: scroll-to-lane once the desk gains a scroll proxy.
             _ = id
         }
 
-        func togglePlay() { isPlaying.toggle() }
-
-        func skip(by delta: TimeInterval) {
-            let duration = song?.duration ?? 0
-            playhead = min(max(0, playhead + delta), duration)
-        }
-
-        func toggleMute(id: String) {
-            guard let index = lanes.firstIndex(where: { $0.id == id }) else { return }
-            lanes[index].isMuted.toggle()
-        }
-
-        func toggleSolo(id: String) {
-            guard let index = lanes.firstIndex(where: { $0.id == id }) else { return }
-            lanes[index].isSoloed.toggle()
-        }
-
-        func setVolume(id: String, volume: Float) {
-            guard let index = lanes.firstIndex(where: { $0.id == id }) else { return }
-            lanes[index].volume = volume
-        }
-
-        func beginSeparation(mode: StemMode) {
-            _ = mode
-            // StemSeparator service next.
-        }
-
-        func requestExport() {}
-
-        private func rebuildLanes() {
-            lanes = (song?.stems ?? []).map { stem in
-                StemLaneState(
-                    id: stem.id,
-                    name: stem.name,
-                    index: stem.index,
-                    volume: 1,
-                    isMuted: false,
-                    isSoloed: false,
-                    isLowEnergy: stem.isLowEnergy
-                )
-            }
+        func teardown() {
+            player.teardown()
         }
     }
 }

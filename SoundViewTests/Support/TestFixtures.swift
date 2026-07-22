@@ -35,6 +35,23 @@ enum TestFixtures {
     /// Approximate duration from `afinfo` (seconds) — use with tolerance in assertions.
     static let testMP3ExpectedDuration: TimeInterval = 308.74
 
+    /// Same audio as `Idilio.mp3` (development library track) until we diversify fixtures.
+    static var idilioMP3URL: URL {
+        let bundle = Bundle(for: BundleToken.self)
+        let candidates: [URL?] = [
+            bundle.url(forResource: "Idilio", withExtension: "mp3"),
+            bundle.url(forResource: "Idilio", withExtension: "mp3", subdirectory: "Audio"),
+            repositoryAudioDirectory.appendingPathComponent("Idilio.mp3")
+        ]
+        if let url = candidates.compactMap({ $0 }).first(where: {
+            FileManager.default.fileExists(atPath: $0.path)
+        }) {
+            return url
+        }
+        // Fall back to Test.mp3 (identical bytes today).
+        return testMP3URL
+    }
+
     /// On-disk path for tools/scripts (not used inside the simulator bundle).
     static var repositoryAudioDirectory: URL {
         // SoundViewTests/Support → repo root

@@ -3,6 +3,10 @@
 Multiplatform SwiftUI stem-separation app (iPhone · iPad · Mac).  
 **Design system first. Swift only. No UIKit.**
 
+> **Engine:** Meta's official **Demucs** (`htdemucs_ft`) → Core ML, bundled and
+> run 100% on-device. See `docs/COREML.md` for the conversion; `MISSION.md` for
+> the execution contract.
+
 ## Source of truth
 
 | Doc | Purpose |

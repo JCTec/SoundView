@@ -2,6 +2,22 @@
 
 Built **before** feature screens. Features import tokens/components only — never invent local colors.
 
+## Structure — atomic tiers (Brad Frost)
+
+```
+DesignSystem/
+  Atoms/        Palette · Typography · Spacing (+SVWaveMetrics) · SVAnimation
+  Molecules/    SVCapsuleButton · SVTimecodeLabel · SVStemBadge · SVMuteSoloButtons
+                SVVolumeSlider · SVDebugBadge · SVReturnToPlayheadChip
+  Organisms/    SVWaveformCanvas · SVTimeRuler · SVTransportBar · SVEmptyState
+                SVQualityMeter · SVStemModePicker · SVSyncStatusLine
+  Catalog/      DesignSystemCatalog — every tier on one screen (taste checkpoint)
+```
+
+Hard rules: a Feature file may not contain a `Canvas`, a stock `Slider`, or a
+color/spacing/animation literal — if it needs one, that's a new molecule/organism.
+Debug affordances only via `SVDebugBadge` inside `#if DEBUG` (amendment A4).
+
 ## Brand
 
 Dark-first field/studio aesthetic: **Pine · Fern · Amber · Signal**.
@@ -59,9 +75,13 @@ Capsules everywhere. SF Symbols only.
 | `SVEmptyState` | Icon + sentence + action |
 | `SVQualityMeter` | Stem-mode quality bars |
 | `SVStemModePicker` | 2 / 4 / 6 / Max + recommended |
-| `SVMuteSoloButtons` | M / S pair |
-| `SVVolumeSlider` | Lane volume |
-| `SVWaveformCanvas` | Peak tile drawing (viewport-driven) |
+| `SVMuteSoloButtons` | M / S pair (stateless: values in, actions out) |
+| `SVVolumeSlider` | Lane volume — capsule track, fat 24pt knob, lane-tinted |
+| `SVWaveformCanvas` | Peak drawing from tiered cache, viewport-driven |
+| `SVTimeRuler` | NiceScale ticks; re-ticks per zoom |
+| `SVDebugBadge` | The only sanctioned debug label |
+| `SVLoadingWave` | Ghost-bar shimmer while lane peaks decode |
+| `SVReturnToPlayheadChip` | Re-engages follow mode |
 | `SVTransportBar` | Play ±15s |
 | `SVRecordButton` | Idle / recording / paused |
 | `SVProgressRing` | Library separation progress |

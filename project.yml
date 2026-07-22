@@ -21,6 +21,20 @@ targets:
       - path: SoundView
         excludes:
           - "**/.DS_Store"
+      # Development / QA mix — imported into FileStore on DEBUG launch.
+      - path: Fixtures/Audio/Idilio.mp3
+        buildPhase: resources
+        type: file
+      # Real Demucs htdemucs_6s stems for Idilio (vocals/drums/bass/guitar/piano/other).
+      - path: Fixtures/Audio/Idilio-stems
+        buildPhase: resources
+        type: folder
+        name: Idilio-stems
+      # Separation engine: Meta's official Demucs (htdemucs_ft). The four
+      # fine-tuned Core ML models (htdemucs_ft_{drums,bass,other,vocals}.mlpackage)
+      # + htdemucs_manifest.json ship in SoundView/Resources/, produced by
+      # tools/convert_htdemucs.py and picked up by the recursive SoundView path.
+      # Xcode compiles each .mlpackage to .mlmodelc at build time.
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

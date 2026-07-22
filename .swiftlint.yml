@@ -40,3 +40,4 @@ excluded:
   - SoundViewUITests
   - .derivedData
   - DerivedData
+  - tools

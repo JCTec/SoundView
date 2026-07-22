@@ -25,6 +25,9 @@ struct LibrarySidebar: View {
         List(selection: $selectedSongID) {
             Section {
                 SVSyncStatusLine(status: viewModel.syncStatus)
+                #if DEBUG
+                SVDebugBadge(label: "real Demucs stems")
+                #endif
             }
 
             Section("Songs") {
@@ -67,23 +70,24 @@ struct LibrarySidebar: View {
                 SVCapsuleButton(
                     title: "Import",
                     systemImage: "square.and.arrow.down",
+                    accessibilityID: A11yID.Library.importButton,
                     action: { showImporter = true }
                 )
-                .accessibilityIdentifier(A11yID.Library.importButton)
 
                 SVCapsuleButton(
                     title: "Record",
                     systemImage: "mic.fill",
                     style: .secondary,
+                    accessibilityID: A11yID.Library.recordButton,
                     action: { showRecorderSlideOver = true }
                 )
-                .accessibilityIdentifier(A11yID.Library.recordButton)
             }
             .padding()
             .background(Color.sv.canvas.opacity(0.95))
         }
         .task {
             viewModel.updateStore(environment.fileStore)
+            await environment.seedDevelopmentLibraryIfNeeded()
             await environment.refreshStorageStatus()
             await viewModel.load()
             if selectedSongID == nil {
@@ -131,7 +135,9 @@ struct LibrarySidebar: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(song.title)
                     .svHeadline()
-                if let progress = song.separationProgress {
+                // Amendment A2: loading copy only while genuinely separating —
+                // a separated song never shows progress remnants.
+                if let progress = song.separationProgress, !song.isSeparated {
                     Text(SyncStatus.separating(progress: progress).sentence)
                         .svCaption()
                 } else {

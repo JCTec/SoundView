@@ -209,6 +209,21 @@ actor FileStore: FileStoreProtocol {
         return audioURL
     }
 
+    /// Absolute stem WAV URLs in lane order. Internal services only.
+    func stemAudioURLs(id: String) async throws -> [(id: String, url: URL)] {
+        let packageURL = try await packageDirectoryURL(id: id)
+        let manifest = try readManifest(at: PackageLayout.manifestURL(packageURL: packageURL))
+        return try manifest.stems
+            .sorted { $0.index < $1.index }
+            .map { entry in
+                let url = PackageLayout.stemURL(packageURL: packageURL, fileName: entry.fileName)
+                guard fileManager.fileExists(atPath: url.path) else {
+                    throw FileStoreError.unreadableAudio(entry.fileName)
+                }
+                return (id: entry.id, url: url)
+            }
+    }
+
     // MARK: - Private
 
     private func songPackage(from manifest: PackageManifest) -> SongPackage {

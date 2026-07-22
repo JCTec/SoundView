@@ -27,6 +27,18 @@ enum StemEnergy {
         return value
     }
 
+    /// Single-stem absolute energy (used while writing package stems).
+    static func analyze(samples: [Float], absoluteLowRMS: Float = 0.004) -> Metrics {
+        let rmsValue = rms(samples: samples)
+        let peak = peakMagnitude(samples: samples)
+        return Metrics(
+            rms: rmsValue,
+            peak: peak,
+            relative: 1,
+            isLowEnergy: rmsValue < absoluteLowRMS
+        )
+    }
+
     /// Scores each stem; tags low energy when relative RMS &lt; `threshold`.
     static func score(
         stems: [[Float]],

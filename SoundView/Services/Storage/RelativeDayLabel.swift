@@ -7,17 +7,18 @@ enum RelativeDayLabel {
         now: Date = .now,
         calendar: Calendar = .current
     ) -> String {
-        if calendar.isDateInToday(date) {
-            return "Today"
-        }
-        if calendar.isDateInYesterday(date) {
-            return "Yesterday"
-        }
-
+        // Compare against the injected `now` (not Calendar.isDateInToday, which
+        // always uses the wall clock and breaks deterministic tests).
         let startNow = calendar.startOfDay(for: now)
         let startDate = calendar.startOfDay(for: date)
         let days = calendar.dateComponents([.day], from: startDate, to: startNow).day ?? 0
 
+        if days == 0 {
+            return "Today"
+        }
+        if days == 1 {
+            return "Yesterday"
+        }
         if days > 1, days < 7 {
             return "\(days) days ago"
         }

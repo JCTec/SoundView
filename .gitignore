@@ -61,8 +61,9 @@ tools/.venv/
 # Downloaded pretrained checkpoints — build inputs, never shipped, never committed
 tools/checkpoints/
 # Conversion / parity / install logs (tee'd during model export)
-coreml_export.log
-spleeter_export.log
-spleeter_validate.log
-spleeter_install.log
-tf_install.log
+*_export.log
+
+# Bundled Core ML models (~412 MB) are hosted on GitHub Releases, not in git.
+# Fetch them with `make models` (tools/fetch_models.sh) or regenerate via
+# tools/convert_htdemucs.py. The manifest JSON stays tracked — it's the contract.
+SoundView/Resources/*.mlpackage/

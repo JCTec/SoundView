@@ -1,9 +1,12 @@
 import SwiftUI
 
 /// On-device separation wait UX — materializing stems, honest progress.
+/// Single studio engine (Meta Demucs); no quality/install picker.
 struct SeparationView: View {
     let song: SongPackage
     @Binding var mode: StemMode
+    @Environment(\.appEnvironment) private var environment
+    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ViewModel
 
     init(song: SongPackage, mode: Binding<StemMode>) {
@@ -22,13 +25,40 @@ struct SeparationView: View {
             Text(song.title)
                 .svLargeTitle()
 
-            Text("On this device · works offline")
+            Text("Studio separation · on this device")
                 .svCaption()
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
 
             SVStemModePicker(selection: $mode)
                 .disabled(viewModel.isRunning)
                 .padding(.horizontal)
 
+            separatingSection
+
+            Spacer()
+
+            footerButton
+        }
+        .padding(.top, SVSpacing.xxl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.sv.canvas)
+        .accessibilityIdentifier(A11yID.Separation.screen)
+        .task(id: mode.rawValue) {
+            viewModel.mode = mode
+            viewModel.bind(
+                separator: environment.stemSeparator,
+                catalog: environment.modelCatalog
+            )
+            await viewModel.startSeparation()
+        }
+        .onChange(of: mode) { _, newValue in
+            viewModel.mode = newValue
+        }
+    }
+
+    private var separatingSection: some View {
+        VStack(spacing: SVSpacing.xl) {
             VStack(alignment: .leading, spacing: SVSpacing.sm) {
                 ForEach(viewModel.foundStems) { stem in
                     HStack {
@@ -36,52 +66,50 @@ struct SeparationView: View {
                             .foregroundStyle(Color.sv.accent)
                         Text(stem.name)
                             .svHeadline()
+                        if stem.isLowEnergy {
+                            Text("Low energy")
+                                .svCaption()
+                        }
                     }
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, SVSpacing.xl)
-            .animation(.easeOut, value: viewModel.foundStems.map(\.id))
+            .animation(SVAnimation.chrome, value: viewModel.foundStems.count)
+            .frame(maxWidth: 320, alignment: .leading)
 
-            VStack(spacing: SVSpacing.xs) {
-                ProgressView(value: viewModel.progress)
-                    .tint(Color.sv.accent)
-                    .accessibilityIdentifier(A11yID.Separation.progress)
-                Text(viewModel.progressLabel)
-                    .svCaption()
-                Text("You can leave this screen — separation continues in the background and we'll notify you.")
-                    .font(SVTypography.caption)
-                    .foregroundStyle(Color.sv.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            .padding(.horizontal, SVSpacing.xl)
+            ProgressView(value: viewModel.progress)
+                .tint(Color.sv.accent)
+                .padding(.horizontal, SVSpacing.xxl)
 
-            Spacer()
-
-            SVCapsuleButton(
-                title: "Cancel",
-                style: .secondary,
-                action: { viewModel.cancel() }
-            )
-            .padding()
-            .accessibilityIdentifier(A11yID.Separation.cancel)
-        }
-        .padding(.top, SVSpacing.xxl)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.sv.canvas)
-        .accessibilityIdentifier(A11yID.Separation.screen)
-        .task {
-            viewModel.mode = mode
-            await viewModel.startDemoProgress()
-        }
-        .onChange(of: mode) { _, newValue in
-            viewModel.mode = newValue
+            Text(viewModel.progressLabel)
+                .svCaption()
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
     }
-}
 
-#Preview {
-    SeparationView(song: SongPackage.samples[1], mode: .constant(.four))
+    private var footerButton: some View {
+        Group {
+            if viewModel.isFinished {
+                SVCapsuleButton(
+                    title: "Done",
+                    systemImage: "checkmark",
+                    accessibilityID: A11yID.Separation.cancel,
+                    action: { dismiss() }
+                )
+            } else {
+                SVCapsuleButton(
+                    title: "Cancel",
+                    systemImage: "xmark",
+                    accessibilityID: A11yID.Separation.cancel,
+                    action: {
+                        viewModel.cancel()
+                        dismiss()
+                    }
+                )
+            }
+        }
+        .padding(.horizontal)
+        .padding(.bottom, SVSpacing.xxl)
+    }
 }

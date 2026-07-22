@@ -10,6 +10,9 @@ struct SoundViewApp: App {
                 .environment(\.appEnvironment, environment)
                 .preferredColorScheme(.dark)
                 .task {
+                    // Logging is configured in AppEnvironment.init (composition root).
+                    // Real package on disk (DEBUG) so library testing uses Idilio, not empty demo lists.
+                    await environment.seedDevelopmentLibraryIfNeeded()
                     await environment.refreshStorageStatus()
                 }
         }
@@ -49,20 +52,17 @@ struct MenuCommands: Commands {
     }
 }
 
+/// macOS Settings hosts the credits + privacy surface (the Demucs attribution
+/// and the "audio never leaves this device" promise live in `AboutView`).
 struct SettingsPlaceholderView: View {
     @Bindable var environment: AppEnvironment
 
     var body: some View {
-        Form {
-            Text(environment.storageDisplaySentence)
-                .svCaption()
-            Text("Storage location is never shown as a raw path.")
-                .svCaption()
-        }
-        .frame(width: 360, height: 120)
-        .padding()
-        .task {
-            await environment.refreshStorageStatus()
-        }
+        AboutView()
+            .environment(\.appEnvironment, environment)
+            .frame(width: 440, height: 560)
+            .task {
+                await environment.refreshStorageStatus()
+            }
     }
 }

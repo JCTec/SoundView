@@ -22,7 +22,7 @@ Secondary: **Record · Trim** (per-stem, long-press / `T`)
 | Default mode | **4 stems** (recommended) |
 | Modes | **2 / 4 / 6 / Max** with quality meter + Recommended on 4 (and strong quality on 6) |
 | Max song length | Soft warnings only until measured; no hard product max yet |
-| Model class | HTDemucs / Demucs v4 family (Core ML primary on iOS; MLX optional on Mac) |
+| Model class | **Meta Demucs** `htdemucs_ft` (4 fine-tuned models bundled; Core ML on-device). Code MIT; weights CC-BY-NC → open-source non-commercial only. |
 | Smart reduction | **Not silent.** User chooses mode; Max shows all model outputs; weak lanes may tag “Low energy” but stay visible |
 | Mac sidebar stems | **Yes** — list stems of open song for **jump**; **no reorder** |
 | iPad Recorder | **Slide-over** (library stays visible) |
@@ -36,8 +36,8 @@ Secondary: **Record · Trim** (per-stem, long-press / `T`)
 | Mode | Intent |
 |------|--------|
 | 2 | Faster, simpler mix |
-| **4** | Best quality ★ Recommended (HTDemucs classic) |
-| **6** | More detail, still strong quality |
+| **4** | Best quality ★ Recommended (Demucs htdemucs_ft) |
+| **6** | More detail when a 6-stem model ships — honest “coming later” until then |
 | Max | Everything possible — quality not guaranteed |
 
 ## Screens
@@ -64,7 +64,7 @@ Secondary: **Record · Trim** (per-stem, long-press / `T`)
 
 ```
 FileStore          — song packages (.soundview: original + stems + mix.json)
-StemSeparator      — Core ML / MLX, chunked OLA, AsyncStream<StemEvent>
+StemSeparator      — Core ML Demucs (htdemucs_ft), chunked OLA, AsyncStream<StemEvent>
 StemReducer        — optional energy tags (never auto-delete user-visible stems for Max)
 StemMixer          — AVAudioEngine, N sample-locked players
 WaveformService    — per-stem tiles, shared viewport

@@ -1,0 +1,47 @@
+{
+  "model_id": "htdemucs_ft",
+  "sources": [
+    "drums",
+    "bass",
+    "other",
+    "vocals"
+  ],
+  "sample_rate": 44100,
+  "channels": 2,
+  "segment_samples": 343980,
+  "nfft": 4096,
+  "hop": 1024,
+  "bins": 2048,
+  "frames": 336,
+  "export_boundary": "stft-externalized (cac); in: mix[1,2,343980]+spec[1,4,2048,336]; out: spec_stem[1,4,2048,336]+wave_stem[1,2,343980]; stem = iSTFT(spec_stem)+wave_stem",
+  "inputs": [
+    "mix",
+    "spec"
+  ],
+  "outputs": [
+    "spec_stem",
+    "wave_stem"
+  ],
+  "models": [
+    {
+      "resource": "htdemucs_ft_drums",
+      "source": "drums",
+      "source_index": 0
+    },
+    {
+      "resource": "htdemucs_ft_bass",
+      "source": "bass",
+      "source_index": 1
+    },
+    {
+      "resource": "htdemucs_ft_other",
+      "source": "other",
+      "source_index": 2
+    },
+    {
+      "resource": "htdemucs_ft_vocals",
+      "source": "vocals",
+      "source_index": 3
+    }
+  ]
+}

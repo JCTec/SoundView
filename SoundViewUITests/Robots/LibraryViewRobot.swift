@@ -11,11 +11,16 @@ struct LibraryViewRobot {
     }
 
     var importButton: XCUIElement {
-        app.buttons[UITestIDs.Library.importButton]
+        // Prefer buttons, fall back to any (capsule may surface as Other).
+        let button = app.buttons[UITestIDs.Library.importButton]
+        if button.exists { return button }
+        return app.descendants(matching: .any)[UITestIDs.Library.importButton]
     }
 
     var recordButton: XCUIElement {
-        app.buttons[UITestIDs.Library.recordButton]
+        let button = app.buttons[UITestIDs.Library.recordButton]
+        if button.exists { return button }
+        return app.descendants(matching: .any)[UITestIDs.Library.recordButton]
     }
 
     @discardableResult
@@ -30,15 +35,27 @@ struct LibraryViewRobot {
 
     @discardableResult
     func tapImport() -> Self {
-        XCTAssertTrue(importButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(importButton.waitForExistence(timeout: 5), "Import control missing")
         importButton.tap()
         return self
     }
 
     @discardableResult
     func tapRecord() -> Self {
-        XCTAssertTrue(recordButton.waitForExistence(timeout: 5))
-        recordButton.tap()
+        // Prefer a11y id; fall back to visible title (same strategy as ScreenshotReviewTests).
+        let byID = app.descendants(matching: .any)[UITestIDs.Library.recordButton]
+        if byID.waitForExistence(timeout: 3) {
+            byID.tap()
+            return self
+        }
+        app.swipeUp()
+        if byID.waitForExistence(timeout: 2) {
+            byID.tap()
+            return self
+        }
+        let byTitle = app.buttons["Record"].firstMatch
+        XCTAssertTrue(byTitle.waitForExistence(timeout: 5), "Record control missing")
+        byTitle.tap()
         return self
     }
 

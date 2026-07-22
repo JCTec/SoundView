@@ -151,8 +151,19 @@ struct LibraryViewRobot {
 
 ## Forbidden
 
-- UIKit UI (`UIViewRepresentable` only if Apple forces a gap — avoid).  
+- UIKit UI (`UIViewRepresentable` only if Apple forces a gap — avoid). Non-UI leaf
+  lookups (`DeviceKind`) are the sanctioned exception.
 - Force-unwraps outside tests.  
-- Magic numbers for colors/spacing outside DesignSystem.  
+- Magic numbers for colors/spacing/animation outside DesignSystem (amendment A3).  
+- `Canvas` or stock `Slider` inside `Features/` — those belong to DesignSystem organisms.  
+- Debug labels as plain text — `#if DEBUG` + `SVDebugBadge` only (amendment A4).  
+- Timer-driven playheads — extrapolate `PlaybackClock` inside `TimelineView` instead.  
+- Duplicated view `@State` mirroring model state — bind to the model, one source of truth.  
 - God files / “Utils” grab-bags.  
 - Reordering stems in sidebar (product: jump only).  
+
+## Shared player
+
+`StemPlayerModel` (Features/Stems) is the single source of truth for lanes, mix,
+transport clock, and the shared viewport. Both layouts (`StemView`, `StemDeskView`)
+compose it; wave gestures come from `.waveTimelineGestures(_:)` — never hand-rolled.

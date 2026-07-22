@@ -7,6 +7,7 @@ struct LibraryView: View {
     @State private var viewModel: ViewModel
     @State private var showRecorder = false
     @State private var showImporter = false
+    @State private var showAbout = false
     @State private var stemMode: StemMode = .default
 
     init(fileStore: (any FileStoreProtocol)? = nil) {
@@ -27,6 +28,8 @@ struct LibraryView: View {
         .accessibilityIdentifier(A11yID.Library.screen)
         .task {
             viewModel.updateStore(environment.fileStore)
+            // Ensure Idilio package exists before first load (DEBUG).
+            await environment.seedDevelopmentLibraryIfNeeded()
             await environment.refreshStorageStatus()
             await viewModel.load()
         }
@@ -39,6 +42,31 @@ struct LibraryView: View {
         }
         .sheet(isPresented: $showRecorder) {
             RecorderView()
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAbout = true
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .accessibilityLabel("About SoundView")
+                .accessibilityIdentifier(A11yID.About.open)
+            }
+        }
+        .sheet(isPresented: $showAbout) {
+            NavigationStack {
+                AboutView()
+                    .navigationTitle("About")
+                    #if os(iOS)
+                    .navigationBarTitleDisplayMode(.inline)
+                    #endif
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { showAbout = false }
+                        }
+                    }
+            }
         }
     }
 
@@ -57,6 +85,9 @@ struct LibraryView: View {
                 List {
                     Section {
                         SVSyncStatusLine(status: viewModel.syncStatus)
+                        #if DEBUG
+                        SVDebugBadge(label: "Idilio uses real Demucs stems")
+                        #endif
                     }
                     ForEach(viewModel.songs) { song in
                         NavigationLink(value: song.id) {
@@ -78,13 +109,7 @@ struct LibraryView: View {
             }
         }
         .navigationDestination(for: String.self) { id in
-            if let song = viewModel.songs.first(where: { $0.id == id }) {
-                if song.isSeparated {
-                    StemView(song: song)
-                } else {
-                    SeparationView(song: song, mode: $stemMode)
-                }
-            }
+            SongDestinationView(songID: id, stemMode: $stemMode)
         }
     }
 
@@ -102,17 +127,17 @@ struct LibraryView: View {
                 SVCapsuleButton(
                     title: "Import",
                     systemImage: "square.and.arrow.down",
+                    accessibilityID: A11yID.Library.importButton,
                     action: { showImporter = true }
                 )
-                .accessibilityIdentifier(A11yID.Library.importButton)
 
                 SVCapsuleButton(
                     title: "Record",
                     systemImage: "mic.fill",
                     style: .secondary,
+                    accessibilityID: A11yID.Library.recordButton,
                     action: { showRecorder = true }
                 )
-                .accessibilityIdentifier(A11yID.Library.recordButton)
             }
             .padding(.horizontal, SVSpacing.lg)
             .padding(.bottom, SVSpacing.lg)
