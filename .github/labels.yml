@@ -1,0 +1,59 @@
+# Repository labels — synced by .github/workflows/labels-sync.yml.
+# Edit here; the workflow applies changes on push to main.
+
+# --- Type ---
+- name: bug
+  color: d73a4a
+  description: Something isn't working
+- name: enhancement
+  color: a2eeef
+  description: New feature or request
+- name: documentation
+  color: 0075ca
+  description: Docs, README, or comments
+- name: question
+  color: d876e3
+  description: Needs clarification or discussion
+- name: refactor
+  color: fbca04
+  description: Code health, no behavior change
+- name: performance
+  color: fef2c0
+  description: Speed or memory (e.g. on-device inference)
+
+# --- Area (SoundView subsystems) ---
+- name: "area: separation"
+  color: 5319e7
+  description: Demucs / Core ML separation engine
+- name: "area: dsp"
+  color: 5319e7
+  description: STFT / iSTFT / overlap-add math
+- name: "area: ui"
+  color: 1d76db
+  description: SwiftUI views and design system
+- name: "area: models"
+  color: 5319e7
+  description: Model conversion, weights, manifests
+- name: "area: ci"
+  color: ededed
+  description: CI / release automation
+
+# --- Workflow ---
+- name: good first issue
+  color: 7057ff
+  description: Good for newcomers
+- name: help wanted
+  color: 008672
+  description: Extra attention is welcome
+- name: blocked
+  color: b60205
+  description: Waiting on something else
+- name: wontfix
+  color: ffffff
+  description: This will not be worked on
+- name: duplicate
+  color: cfd3d7
+  description: Already reported
+- name: dependencies
+  color: 0366d6
+  description: Dependency updates (Dependabot)
