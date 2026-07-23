@@ -21,6 +21,8 @@ jobs:
     name: Analyze (Swift)
     # Swift analysis requires macOS and a real build.
     runs-on: macos-15
+    # A clean run is ~20 min; cap it so a flaky build hang fails fast, not for hours.
+    timeout-minutes: 45
     permissions:
       security-events: write
       actions: read
