@@ -1,14 +1,14 @@
 name: CodeQL
 
+# Weekly + on-demand only. The Swift analysis build intermittently hangs on the
+# hosted runner (~40% of runs), and results can't upload without code scanning
+# enabled (GHAS on private repos) — so gating every PR/push on it is costly and
+# flaky. A scheduled scan is the standard CodeQL cadence; run it manually anytime.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   schedule:
     - cron: "27 3 * * 1" # weekly, Monday 03:27 UTC
+  workflow_dispatch:
 
-# Cancel superseded analyses on the same ref.
 concurrency:
   group: codeql-${{ github.ref }}
   cancel-in-progress: true
