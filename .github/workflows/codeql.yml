@@ -47,21 +47,16 @@ jobs:
           build-mode: manual
 
       # Model weights aren't in git; the app builds without them (E2E XCTSkips).
+      # Build against the simulator SDK generically — a build doesn't need a booted
+      # device, and forcing one (`-destination id=…`) can hang the CodeQL run.
       - name: Build for analysis
         run: |
           set -o pipefail
           xcodegen generate
-          UDID=$(xcrun simctl list devices available -j | python3 -c "
-          import json, sys
-          devices = json.load(sys.stdin)['devices']
-          cands = [d['udid'] for rt, ds in devices.items() if 'iOS' in rt
-                   for d in ds if d.get('isAvailable') and 'iPhone' in d['name']]
-          print(cands[0])
-          ")
           xcodebuild build \
             -project SoundView.xcodeproj \
             -scheme SoundView \
-            -destination "id=$UDID" \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
 
       # The analysis always runs; uploading results to the Security tab needs
