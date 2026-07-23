@@ -1,7 +1,7 @@
 # Build-time only — converts Meta's Demucs to Core ML (never ships in the app).
 # See tools/README.md and docs/COREML.md.
 torch
-coremltools>=8.0
+coremltools>=9.0
 demucs
 soundfile
 numpy
