@@ -74,7 +74,6 @@
 		8044985705ECB388C4D08A74 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15237F527C8BF586A7E7F758 /* LibraryView.swift */; };
 		835D273058350DBBE72D7599 /* MemoryReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F741FB5CE346D4B1F91BC5 /* MemoryReport.swift */; };
 		83E0983B864DB0926D7F480A /* DemucsManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3243B08BAA5DBFCB2FCE9C2 /* DemucsManifest.swift */; };
-		8465587FCECBDBD93C96BC03 /* Idilio-stems in Resources */ = {isa = PBXBuildFile; fileRef = E7CDBF104AF7C574ABB29F94 /* Idilio-stems */; };
 		8472EBAC3EFED290DF9082A9 /* StemLaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6926E9F70FFEEE5D5CD944B /* StemLaneView.swift */; };
 		86BCFFB5C8D9EE7C0BDC5A18 /* AudioFileIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025BBF56AF25EEB140BB6423 /* AudioFileIO.swift */; };
 		8BA97A1A006A45176C635F03 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB8EA02701E9DB77E830CDB /* Spacing.swift */; };
@@ -285,7 +284,6 @@
 		E3A10618D7EF66433498AB3C /* OverlapAddStreamerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlapAddStreamerTests.swift; sourceTree = "<group>"; };
 		E3FBE6FA86EC5E863DEDD8B5 /* LaneHeaderColumn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneHeaderColumn.swift; sourceTree = "<group>"; };
 		E7C0BEC5FDED4E24425136EF /* FileStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStoreError.swift; sourceTree = "<group>"; };
-		E7CDBF104AF7C574ABB29F94 /* Idilio-stems */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "Idilio-stems"; path = "Fixtures/Audio/Idilio-stems"; sourceTree = SOURCE_ROOT; };
 		E8F741FB5CE346D4B1F91BC5 /* MemoryReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReport.swift; sourceTree = "<group>"; };
 		E91BEBBBDDE7291FEA6934DC /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		EACE5E532ECA12DC4FF33A42 /* FileLogSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogSink.swift; sourceTree = "<group>"; };
@@ -621,7 +619,6 @@
 				9E57F46B276ADEB0376309FE /* SoundViewTests */,
 				D9808515BD9D0AABFC473C74 /* SoundViewUITests */,
 				650E7A4D67D6739A89AD6389 /* AudioFixtures */,
-				E7CDBF104AF7C574ABB29F94 /* Idilio-stems */,
 				203D84304661C9468223CA81 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -840,7 +837,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8465587FCECBDBD93C96BC03 /* Idilio-stems in Resources */,
 				3A6FFDA58309C3489D774DAF /* Idilio.mp3 in Resources */,
 				CCF81BCE58C0956D648A34BF /* htdemucs_manifest.json in Resources */,
 			);
